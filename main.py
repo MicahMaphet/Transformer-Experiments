@@ -2,6 +2,8 @@ import torch
 from torch.utils.data import Dataset
 from torch.utils.data.dataloader import DataLoader
 from mingpt.utils import set_seed
+from mingpt.model import GPT
+import pickle
 
 set_seed(8736)
 
@@ -18,9 +20,23 @@ class SortDataset(Dataset):
     def __getitem__(self, idx):
         while True:
             inp = torch.randint(self.num_digits, size=(self.length,), dtype=torch.long)
-            return inp
+            if torch.rand(1).item() < 0.5:
+                if inp.unique().nelement() > self.length // 2:
+                    continue
+            h = hash(pickle.dumps(inp.tolist()))
+            inp_split = 'test' if h % 4 == 0 else 'train'
+            if inp_split == self.split:
+                break
+        sol = torch.sort(inp)[0]
+
+        cat = torch.cat((inp, sol), dim=0)
+
+        x, y = cat[:-1].clone(), cat[1:].clone()
+        y[:self.length-1] = -1
+        return x, y
 
 
 train_dataset = SortDataset('train')
 test_dataset = SortDataset('test')
-print(train_dataset[10001])
+
+model_config = GPT.get_default_config()
