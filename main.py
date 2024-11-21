@@ -16,6 +16,12 @@ class SortDataset(Dataset):
 
     def __len__(self):
         return 5 # default 10000
+    
+    def get_vocab_size(self):
+        return self.num_digits
+    
+    def get_block_size(self):
+        return self.length * 2 -1
 
     def __getitem__(self, idx):
         while True:
@@ -40,3 +46,8 @@ train_dataset = SortDataset('train')
 test_dataset = SortDataset('test')
 
 model_config = GPT.get_default_config()
+model_config.model_type = 'gpt-nano'
+model_config.vocab_size = train_dataset.get_vocab_size()
+model_config.block_size = train_dataset.get_block_size()
+model = GPT(model_config)
+
