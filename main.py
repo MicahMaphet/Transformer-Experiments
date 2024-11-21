@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 from torch.utils.data.dataloader import DataLoader
 from mingpt.utils import set_seed
 from mingpt.model import GPT
+from mingpt.trainer import Trainer
 import pickle
 
 set_seed(8736)
@@ -51,3 +52,8 @@ model_config.vocab_size = train_dataset.get_vocab_size()
 model_config.block_size = train_dataset.get_block_size()
 model = GPT(model_config)
 
+train_config = Trainer.get_default_config()
+train_config.learning_rate = 5e-4
+train_config.max_iters = 2000
+train_config.num_workers = 0
+trainer = Trainer(train_config, model, train_dataset)
