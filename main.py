@@ -57,3 +57,10 @@ train_config.learning_rate = 5e-4
 train_config.max_iters = 2000
 train_config.num_workers = 0
 trainer = Trainer(train_config, model, train_dataset)
+
+def batch_end_callback(trainer):
+    if trainer.iter_num % 100 == 0:
+        print(f"iter time {trainer.iter_dt * 1000:.2f}ms; iter {trainer.iter_num}: loss {trainer.loss.item():.5f}")
+trainer.set_callback('on_batch_end', batch_end_callback)
+
+trainer.run()
